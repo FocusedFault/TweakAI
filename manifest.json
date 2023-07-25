@@ -1,8 +1,8 @@
 ﻿{
   "name": "TweakAI",
-  "version_number": "1.0.1",
+  "version_number": "1.0.2",
   "website_url": "",
-  "description": "Enemy AI tweaks",
+  "description": "AI tweaks to make enemies livelier",
   "dependencies": [
     "bbepis-BepInExPack-5.4.2111",
     "RiskofThunder-HookGenPatcher-1.2.3"

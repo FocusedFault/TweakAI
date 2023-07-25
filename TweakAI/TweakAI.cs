@@ -2,27 +2,36 @@ using BepInEx;
 using RoR2;
 using RoR2.Navigation;
 using EntityStates.AI.Walker;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace TweakAI
 {
-  [BepInPlugin("com.Nuxlar.TweakAI", "TweakAI", "1.0.1")]
+  [BepInPlugin("com.Nuxlar.TweakAI", "TweakAI", "1.0.2")]
 
   public class TweakAI : BaseUnityPlugin
   {
+    private List<GameObject> spawnPoints = new();
     public void Awake()
     {
+      On.RoR2.Stage.Start += Stage_Start;
       On.EntityStates.AI.Walker.LookBusy.OnEnter += Busynt;
       On.EntityStates.AI.Walker.Wander.OnEnter += BetterWander;
     }
 
+    private void Stage_Start(On.RoR2.Stage.orig_Start orig, Stage self)
+    {
+      spawnPoints.Clear();
+      spawnPoints = GameObject.FindObjectsOfType<GameObject>().Where(x => x.name == "SpawnPoint(Clone)").ToList();
+      orig(self);
+    }
+
     private void Busynt(On.EntityStates.AI.Walker.LookBusy.orig_OnEnter orig, LookBusy self)
     {
+      if (self is Guard || self is LookBusy)
+        self.outer.SetState(new Wander());
       orig(self);
-      self.ModifyNextState(new Wander());
-      if (self is Guard)
-        self.ModifyNextState(new Wander());
     }
 
     private void BetterWander(On.EntityStates.AI.Walker.Wander.orig_OnEnter orig, Wander self)
@@ -30,8 +39,12 @@ namespace TweakAI
       orig(self);
       if (!(bool)(Object)self.ai || !(bool)(Object)self.body)
         return;
-      if ((bool)(Object)PlayerCharacterMasterController.instances[0].body)
+      if (self.body.name == "LunarWispBody(Clone)")
+        return;
+      if ((bool)(Object)PlayerCharacterMasterController.instances[Random.Range(0, PlayerCharacterMasterController.instances.Count - 1)].body)
         self.targetPosition = PlayerCharacterMasterController.instances[0].body.footPosition;
+      else if (spawnPoints.Count() > 0)
+        self.targetPosition = spawnPoints[Random.Range(0, spawnPoints.Count() - 1)].transform.position;
       else
       {
         NodeGraph nodes = self.body.isFlying ? SceneInfo.instance.airNodes : SceneInfo.instance.groundNodes;
@@ -54,7 +67,6 @@ namespace TweakAI
         nodes.GetNodePosition(nodeIndex, out position);
         self.targetPosition = position;
       }
-      self.bodyInputs.pressSprint = true;
       self.ai.SetGoalPosition(self.targetPosition);
       self.PickNewTargetLookPosition();
     }
