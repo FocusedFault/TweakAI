@@ -1,10 +1,16 @@
 # Tweak AI
 
-This is not an AI rewrite or anything, the AI is still funky this mod just makes initial enemies likelier to navigate towards players.
+Makes enemies target mainly players and have full vision. Should make AI navigate directly towards players and reduce weird behaviors.
 
-![Wandering Xi Construct](https://i.imgur.com/hy5weGd.gif)
+### Credits
+
+- Leonard (Goorakh)
 
 ## Changelog
+
+**1.2.0**
+
+- Reworks mod to make AI have more aggressive targeting
 
 **1.1.0**
 

@@ -1,50 +1,61 @@
 using BepInEx;
 using RoR2;
-using EntityStates.AI.Walker;
+using RoR2.CharacterAI;
+using System.Linq;
 using System.Collections.Generic;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
 using UnityEngine;
 
 namespace TweakAI
 {
-  [BepInPlugin("com.Nuxlar.TweakAI", "TweakAI", "1.1.0")]
+  [BepInPlugin("com.Nuxlar.TweakAI", "TweakAI", "1.2.0")]
 
   public class TweakAI : BaseUnityPlugin
   {
     public void Awake()
     {
-      On.EntityStates.AI.Walker.LookBusy.OnEnter += Busynt;
-      On.EntityStates.AI.Walker.Wander.OnEnter += BetterWander;
+      IL.RoR2.CharacterAI.BaseAI.FindEnemyHurtBox += TargetMainlyPlayers;
+      On.RoR2.CharacterAI.BaseAI.FindEnemyHurtBox += InfiniVision;
     }
 
-    private void Busynt(On.EntityStates.AI.Walker.LookBusy.orig_OnEnter orig, LookBusy self)
+    private void TargetMainlyPlayers(ILContext il)
     {
-      if (self is Guard || self is LookBusy)
-        self.outer.SetState(new Wander());
-      orig(self);
-    }
+      ILCursor c = new ILCursor(il);
 
-    private void BetterWander(On.EntityStates.AI.Walker.Wander.orig_OnEnter orig, Wander self)
-    {
-      orig(self);
-      if (!(bool)self.ai || !(bool)self.body)
-        return;
-      if (self.body.master && self.body.master.currentLifeStopwatch > 0 && self.body.name == "LunarWispBody(Clone)")
-        return;
-      List<CharacterBody> playerBodies = new();
-      foreach (CharacterMaster cm in UnityEngine.Object.FindObjectsOfType<CharacterMaster>())
+      if (c.TryGotoNext(MoveType.After, x => x.MatchCallOrCallvirt<BullseyeSearch>(nameof(BullseyeSearch.GetResults))))
       {
-        if (cm.teamIndex == TeamIndex.Player)
+        c.Emit(OpCodes.Ldarg_0);
+        c.EmitDelegate((IEnumerable<HurtBox> results, BaseAI instance) =>
         {
-          CharacterBody cb = cm.GetBody();
-          if (cb && cb.isPlayerControlled)
-            playerBodies.Add(cb);
-        }
+          if (instance && instance.body.teamComponent && instance.body.teamComponent.teamIndex != TeamIndex.Player)
+          {
+            // Filter results to only target players (don't target player allies like drones)
+            IEnumerable<HurtBox> playerControlledTargets = results.Where(hurtBox =>
+                            {
+                              GameObject entityObject = HurtBox.FindEntityObject(hurtBox);
+                              return entityObject && entityObject.TryGetComponent(out CharacterBody characterBody) && characterBody.isPlayerControlled;
+                            });
+
+            // If there are no players, use the default target so that the AI doesn't end up doing nothing
+            return playerControlledTargets.Any() ? playerControlledTargets : results;
+          }
+          else
+            return results;
+        });
       }
-      Transform spawnPoint = Stage.instance.GetPlayerSpawnTransform();
-      if (playerBodies.Count > 0)
-        self.targetPosition = playerBodies[Random.Range(0, playerBodies.Count)].footPosition;
-      else if (spawnPoint)
-        self.targetPosition = spawnPoint.position;
+    }
+
+    private HurtBox InfiniVision(On.RoR2.CharacterAI.BaseAI.orig_FindEnemyHurtBox orig, BaseAI self, float maxDistance, bool full360Vision, bool filterByLoS)
+    {
+      if (self && self.body.teamComponent && self.body.teamComponent.teamIndex != TeamIndex.Player)
+      {
+        maxDistance = float.PositiveInfinity;
+        filterByLoS = false;
+        full360Vision = true;
+      }
+
+      return orig(self, maxDistance, full360Vision, filterByLoS);
     }
   }
 }
