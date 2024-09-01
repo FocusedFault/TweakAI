@@ -1,12 +1,16 @@
 # Tweak AI
 
-Makes enemies target mainly players and have full vision. Should make AI navigate directly towards players and reduce weird behaviors.
+Makes enemies target mainly players and have full vision. Should make AI navigate directly towards players and reduce weird behaviors. (especially with the new update)
 
 ### Credits
 
 - Leonard (Goorakh)
 
 ## Changelog
+
+**1.3.0**
+
+- Updated for SotS
 
 **1.2.0**
 

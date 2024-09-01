@@ -1,8 +1,8 @@
 ﻿{
   "name": "TweakAI",
-  "version_number": "1.2.0",
+  "version_number": "1.3.0",
   "website_url": "",
-  "description": "Makes AI target players and stay in combat mode more often.",
+  "description": "Fixes SOTS AI issues by making target players more often",
   "dependencies": [
     "bbepis-BepInExPack-5.4.2111",
     "RiskofThunder-HookGenPatcher-1.2.3"

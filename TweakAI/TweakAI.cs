@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace TweakAI
 {
-  [BepInPlugin("com.Nuxlar.TweakAI", "TweakAI", "1.2.0")]
+  [BepInPlugin("com.Nuxlar.TweakAI", "TweakAI", "1.3.0")]
 
   public class TweakAI : BaseUnityPlugin
   {
