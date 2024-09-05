@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace TweakAI
 {
-  [BepInPlugin("com.Nuxlar.TweakAI", "TweakAI", "1.3.0")]
+  [BepInPlugin("com.Nuxlar.TweakAI", "TweakAI", "1.3.2")]
 
   public class TweakAI : BaseUnityPlugin
   {
@@ -17,6 +17,10 @@ namespace TweakAI
     {
       IL.RoR2.CharacterAI.BaseAI.FindEnemyHurtBox += TargetMainlyPlayers;
       On.RoR2.CharacterAI.BaseAI.FindEnemyHurtBox += InfiniVision;
+      On.RoR2.OffScreenMissHelper.IsPositionOffScreen += (orig, position, offScreenThreshold, minDistance, maxDistance) =>
+      {
+        return false;
+      };
     }
 
     private void TargetMainlyPlayers(ILContext il)

@@ -1,12 +1,21 @@
 # Tweak AI
 
-Makes enemies target mainly players and have full vision. Should make AI navigate directly towards players and reduce weird behaviors. (especially with the new update)
+Makes enemies target mainly players and have full vision. Should make AI navigate directly towards players and reduce weird behaviors.
 
 ### Credits
 
 - Leonard (Goorakh)
 
 ## Changelog
+
+**1.3.2**
+
+- Removes Maximum_Cope since the FPS issues are now hopefully fixed.
+
+**1.3.1**
+
+- Adds Maximum_Cope by Moffein as a dependency (I did not think the AI was this bad but holy)
+- Removes the "missing on purpose" for consistency's sake
 
 **1.3.0**
 
